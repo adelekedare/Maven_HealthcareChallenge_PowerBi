@@ -1,0 +1,1350 @@
+{
+  "compatibilityLevel": 1567,
+  "model": {
+    "annotations": [
+      {
+        "name": "__PBI_TimeIntelligenceEnabled",
+        "value": "0"
+      },
+      {
+        "name": "PBIDesktopVersion",
+        "value": "2.119.666.0 (23.07)"
+      },
+      {
+        "name": "PBI_QueryOrder",
+        "value": "[\"national_results\",\"questions\",\"reports\",\"responses\",\"state_results\",\"States\",\"mmeasures\",\"Measures table 🧮\",\"Query1\",\"calendar\"]"
+      },
+      {
+        "name": "PBI_ProTooling",
+        "value": "[\"DevMode\"]"
+      }
+    ],
+    "culture": "en-US",
+    "cultures": [
+      {
+        "name": "en-US",
+        "linguisticMetadata": {
+          "content": {
+            "DynamicImprovement": "HighConfidence",
+            "Language": "en-US",
+            "Version": "1.0.0"
+          },
+          "contentType": "json"
+        }
+      }
+    ],
+    "dataAccessOptions": {
+      "legacyRedirects": true,
+      "returnErrorValuesAsNull": true
+    },
+    "defaultPowerBIDataSourceVersion": "powerBI_V3",
+    "expressions": [
+      {
+        "name": "Query1",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Function"
+          }
+        ],
+        "expression": [
+          "let fnDateTable = (StartDate as date, EndDate as date, FYStartMonth as number) as table =>",
+          "  let",
+          "    DayCount = Duration.Days(Duration.From(EndDate - StartDate)),",
+          "    Source = List.Dates(StartDate,DayCount,#duration(1,0,0,0)),",
+          "    TableFromList = Table.FromList(Source, Splitter.SplitByNothing()),   ",
+          "    ChangedType = Table.TransformColumnTypes(TableFromList,{{\"Column1\", type date}}),",
+          "    RenamedColumns = Table.RenameColumns(ChangedType,{{\"Column1\", \"Date\"}}),",
+          "    InsertYear = Table.AddColumn(RenamedColumns, \"Year\", each Date.Year([Date]),type text),",
+          "    InsertYearNumber = Table.AddColumn(RenamedColumns, \"YearNumber\", each Date.Year([Date])),",
+          "    InsertQuarter = Table.AddColumn(InsertYear, \"QuarterOfYear\", each Date.QuarterOfYear([Date])),",
+          "    InsertMonth = Table.AddColumn(InsertQuarter, \"MonthOfYear\", each Date.Month([Date]), type text),",
+          "    InsertDay = Table.AddColumn(InsertMonth, \"DayOfMonth\", each Date.Day([Date])),",
+          "    InsertDayInt = Table.AddColumn(InsertDay, \"DateInt\", each [Year] * 10000 + [MonthOfYear] * 100 + [DayOfMonth]),",
+          "    InsertMonthName = Table.AddColumn(InsertDayInt, \"MonthName\", each Date.ToText([Date], \"MMMM\"), type text),",
+          "    InsertCalendarMonth = Table.AddColumn(InsertMonthName, \"MonthInCalendar\", each (try(Text.Range([MonthName],0,3)) otherwise [MonthName]) & \" \" & Number.ToText([Year])),",
+          "    InsertCalendarQtr = Table.AddColumn(InsertCalendarMonth, \"QuarterInCalendar\", each \"Q\" & Number.ToText([QuarterOfYear]) & \" \" & Number.ToText([Year])),",
+          "    InsertDayWeek = Table.AddColumn(InsertCalendarQtr, \"DayInWeek\", each Date.DayOfWeek([Date])),",
+          "    InsertDayName = Table.AddColumn(InsertDayWeek, \"DayOfWeekName\", each Date.ToText([Date], \"dddd\"), type text),",
+          "    InsertWeekEnding = Table.AddColumn(InsertDayName, \"WeekEnding\", each Date.EndOfWeek([Date]), type date),",
+          "    InsertWeekNumber= Table.AddColumn(InsertWeekEnding, \"Week Number\", each Date.WeekOfYear([Date])),",
+          "    InsertMonthnYear = Table.AddColumn(InsertWeekNumber,\"MonthnYear\", each [Year] * 10000 + [MonthOfYear] * 100),",
+          "    InsertQuarternYear = Table.AddColumn(InsertMonthnYear,\"QuarternYear\", each [Year] * 10000 + [QuarterOfYear] * 100),",
+          "    ChangedType1 = Table.TransformColumnTypes(InsertQuarternYear,{{\"QuarternYear\", Int64.Type},{\"Week Number\", Int64.Type},{\"Year\", type text},{\"MonthnYear\", Int64.Type}, {\"DateInt\", Int64.Type}, {\"DayOfMonth\", Int64.Type}, {\"MonthOfYear\", Int64.Type}, {\"QuarterOfYear\", Int64.Type}, {\"MonthInCalendar\", type text}, {\"QuarterInCalendar\", type text}, {\"DayInWeek\", Int64.Type}}),",
+          "    InsertShortYear = Table.AddColumn(ChangedType1, \"ShortYear\", each Text.End(Text.From([Year]), 2), type text),",
+          "    AddFY = Table.AddColumn(InsertShortYear, \"FY\", each \"FY\"&(if [MonthOfYear]>=FYStartMonth then Text.From(Number.From([ShortYear])+1) else [ShortYear]))",
+          "in",
+          "    AddFY",
+          "in",
+          "    fnDateTable"
+        ],
+        "kind": "m",
+        "lineageTag": "226d7de9-8ad2-443b-a2ba-4f468ae66ac5"
+      }
+    ],
+    "relationships": [
+      {
+        "name": "d55ef9c9-dbf0-4cff-a617-2dc876dadb20",
+        "fromColumn": "Measure ID",
+        "fromTable": "national_results",
+        "toColumn": "Measure ID",
+        "toTable": "mmeasures"
+      },
+      {
+        "name": "5d5c88ab-0915-48dc-9bbd-50264d10b758",
+        "fromColumn": "State",
+        "fromTable": "state_results",
+        "toColumn": "State",
+        "toTable": "States"
+      },
+      {
+        "name": "35e15902-64e9-493f-a71f-bdebbfda8bae",
+        "fromColumn": "Measure ID",
+        "fromTable": "state_results",
+        "toColumn": "Measure ID",
+        "toTable": "mmeasures"
+      },
+      {
+        "name": "d3d4f53e-9aa1-421d-a031-3221d3578d1f",
+        "crossFilteringBehavior": "bothDirections",
+        "fromColumn": "State",
+        "fromTable": "responses",
+        "toColumn": "State",
+        "toTable": "States"
+      },
+      {
+        "name": "a0fd3a91-ddf1-46c5-9ae7-f41cde00254b",
+        "fromColumn": "release year",
+        "fromTable": "responses",
+        "toColumn": "release year",
+        "toTable": "reports"
+      },
+      {
+        "name": "c7e250c5-3a62-4bda-8a8b-4eacb45f21ad",
+        "crossFilteringBehavior": "bothDirections",
+        "fromColumn": "release year",
+        "fromTable": "national_results",
+        "toColumn": "release year",
+        "toTable": "reports"
+      },
+      {
+        "name": "dbf30b51-9749-4816-b4de-3185e900709a",
+        "fromColumn": "release year",
+        "fromTable": "state_results",
+        "toColumn": "release year",
+        "toTable": "reports"
+      },
+      {
+        "name": "535f34d3-69fa-4827-95cb-ecdbd597fdcc",
+        "crossFilteringBehavior": "bothDirections",
+        "fromColumn": "Year",
+        "fromTable": "calendar",
+        "toColumn": "release year",
+        "toTable": "reports"
+      }
+    ],
+    "sourceQueryCulture": "en-NG",
+    "tables": [
+      {
+        "name": "Measures table 🧮",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Column1",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "ae446057-65de-4963-9e78-ba332f63d25b",
+            "sourceColumn": "Column1",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "541d4f8b-7d1c-4782-92df-8a79298223c5",
+        "measures": [
+          {
+            "name": "survey participation",
+            "expression": "COUNT(responses[Facility ID])",
+            "formatString": "0",
+            "lineageTag": "9ce0a2c7-2a55-4c9b-94f3-7bf6a61ee3c2"
+          },
+          {
+            "name": "Average top(state)",
+            "annotations": [
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "expression": "AVERAGE(state_results[Top-box Percentage])",
+            "lineageTag": "eb524d7e-ddda-4908-9ec7-a88d8031180a"
+          },
+          {
+            "name": "Average bottom(state)↘",
+            "annotations": [
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "expression": "AVERAGE(state_results[Bottom-box Percentage])",
+            "lineageTag": "0fa91a3f-48a2-4f6d-a5bb-5e38b0c4fc52"
+          },
+          {
+            "name": "Average mid(state)",
+            "annotations": [
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "expression": "AVERAGE(state_results[Middle-box Percentage])",
+            "lineageTag": "224261e3-0dc1-48d5-ae76-eac634891696"
+          },
+          {
+            "name": "facilities",
+            "expression": "DISTINCTCOUNT(responses[Facility ID])",
+            "formatString": "0",
+            "lineageTag": "8fc16b4b-43f0-450c-b99c-174f70aeed7e"
+          },
+          {
+            "name": "Average response rate",
+            "annotations": [
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "expression": "AVERAGE(responses[Response Rate (%)])",
+            "lineageTag": "8b1115f1-de14-4e66-8413-dc4876512715"
+          },
+          {
+            "name": "Average top(National)",
+            "annotations": [
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "expression": "AVERAGE(national_results[Top-box Percentage])",
+            "lineageTag": "fe15b93e-fa6e-46c5-b94c-581247306f43"
+          },
+          {
+            "name": "Average mid(National)",
+            "annotations": [
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "expression": "AVERAGE(national_results[Middle-box Percentage])",
+            "lineageTag": "76c041eb-0a2d-43e6-ad45-c8b143d0b041"
+          },
+          {
+            "name": "Average bottom(National)",
+            "annotations": [
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "expression": "AVERAGE(national_results[Bottom-box Percentage])",
+            "lineageTag": "d192847b-ab0c-4510-aefd-252df5c0e9e9"
+          },
+          {
+            "name": "States",
+            "expression": "DISTINCTCOUNT(States[State Name])",
+            "formatString": "0",
+            "lineageTag": "899f00ba-939f-4160-88d2-dcea2dad44f4"
+          },
+          {
+            "name": "Region",
+            "expression": "DISTINCTCOUNT(States[Region])",
+            "formatString": "0",
+            "lineageTag": "601a3d41-f03f-4cdb-a07c-ff9e79331726"
+          },
+          {
+            "name": "Total %",
+            "expression": "100",
+            "formatString": "0",
+            "lineageTag": "c1ead1fe-ee16-4023-903b-d10f087bb6b2"
+          },
+          {
+            "name": "min top(national)",
+            "expression": "MIN(national_results[Top-box Percentage])",
+            "formatString": "0",
+            "lineageTag": "778723ce-6d30-446c-a2a0-692e9b9610e5"
+          },
+          {
+            "name": "max top(national)",
+            "expression": "MAX(national_results[Top-box Percentage])",
+            "formatString": "0",
+            "lineageTag": "85be69e4-9eab-4292-b796-ff8081b546a0"
+          },
+          {
+            "name": "min top(state)",
+            "expression": "MIN(state_results[Top-box Percentage])",
+            "formatString": "0",
+            "lineageTag": "af59cf6c-2364-4bbe-a4d4-9ae0f02b2c33"
+          },
+          {
+            "name": "max top(state)",
+            "expression": "MAX(state_results[Top-box Percentage])",
+            "formatString": "0",
+            "lineageTag": "e81cb617-186b-4efa-b7ed-f779d2fd805a"
+          },
+          {
+            "name": "min response rate",
+            "expression": "MIN(responses[Response Rate (%)])",
+            "formatString": "0",
+            "lineageTag": "d90cfba6-54eb-4aa6-b614-c3933bd42e36"
+          },
+          {
+            "name": "max response rate",
+            "expression": "MAX(responses[Response Rate (%)])",
+            "formatString": "0",
+            "lineageTag": "48dc6b54-f20e-4552-a9d3-df7d73406681"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Measures table 🧮",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText(\"i44FAA==\", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Column1 = _t]),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(Source,{{\"Column1\", type text}})",
+                "in",
+                "    #\"Changed Type\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "States",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Region",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataCategory": "Country",
+            "dataType": "string",
+            "lineageTag": "c8ae342d-b9b0-48e8-90f0-e7a849ac5b1d",
+            "sourceColumn": "Region",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "State",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "c8737c7d-e455-418b-b0ca-6d93704bf1ec",
+            "sourceColumn": "State",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "State Name",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "206f8f84-fc90-4a13-9e65-ecd0758fd500",
+            "sourceColumn": "State Name",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "4525cacf-7b01-4bc4-9135-4649c15c7207",
+        "partitions": [
+          {
+            "name": "States",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Excel.Workbook(File.Contents(\"C:\\Users\\adelekedare\\OneDrive\\Desktop\\maven_challenge_hcaps_survey.xlsx\"), null, true),",
+                "    States_Table = Source{[Item=\"States\",Kind=\"Table\"]}[Data],",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(States_Table,{{\"State\", type text}, {\"State Name\", type text}, {\"Region\", type text}})",
+                "in",
+                "    #\"Changed Type\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "calendar",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "UnderlyingDateTimeDataType",
+                "value": "Date"
+              }
+            ],
+            "dataType": "dateTime",
+            "formatString": "Long Date",
+            "lineageTag": "59d17375-d221-46e5-9798-1e54f69297a2",
+            "sourceColumn": "Date",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DateInt",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "75cac64f-cc66-434a-b8f0-ee56db1c9b5c",
+            "sourceColumn": "DateInt",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "DayInWeek",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "564a21f9-65c5-447c-85ba-866eea05063d",
+            "sourceColumn": "DayInWeek",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "DayOfMonth",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "703cf028-9cb7-4f12-8f23-3f7f75ce8da9",
+            "sourceColumn": "DayOfMonth",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "DayOfWeekName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "29553b63-664c-4db6-bb71-febea2e3c9d3",
+            "sourceColumn": "DayOfWeekName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "FY",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "7074a0bc-e0f4-4e2d-9b82-8c9eaba52574",
+            "sourceColumn": "FY",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "MonthInCalendar",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "daafa61a-c9c6-4536-ba24-e3fa24d22790",
+            "sourceColumn": "MonthInCalendar",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "MonthName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "fce1ff3d-0626-461c-a1fb-f537adac10a4",
+            "sourceColumn": "MonthName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "MonthOfYear",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "2ef86e32-f204-4f1e-8304-1b281f754d4a",
+            "sourceColumn": "MonthOfYear",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "MonthnYear",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "fc3cb38f-f7b9-4dc2-adba-b0e28e8b57ed",
+            "sourceColumn": "MonthnYear",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "QuarterInCalendar",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "f531ae5a-19b8-4463-8741-bfc4a205c061",
+            "sourceColumn": "QuarterInCalendar",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "QuarterOfYear",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "5d7cf76a-5fd8-43aa-abc3-8e04aee43368",
+            "sourceColumn": "QuarterOfYear",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "QuarternYear",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "15fe4608-297b-40c5-beae-2bb4422ab213",
+            "sourceColumn": "QuarternYear",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "ShortYear",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "982dc71e-0591-46d4-859e-139604e7a852",
+            "sourceColumn": "ShortYear",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Week Number",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "8460a939-bd53-440c-88d2-044549bb39ba",
+            "sourceColumn": "Week Number",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "WeekEnding",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "UnderlyingDateTimeDataType",
+                "value": "Date"
+              }
+            ],
+            "dataType": "dateTime",
+            "formatString": "Long Date",
+            "lineageTag": "e91fc07a-e051-4372-af13-1f2c9b0c0414",
+            "sourceColumn": "WeekEnding",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "ff0d7715-95d6-45ad-9c63-6962920ea30e",
+            "sourceColumn": "Year",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "f382ae2c-2ec5-4844-adf0-fe097811c3ff",
+        "partitions": [
+          {
+            "name": "calendar",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Query1(#date(2015, 1, 1), #date(2023, 12, 31), 1)",
+                "in",
+                "    Source"
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "mmeasures",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Measure",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "fc94577b-856c-4835-96ef-4fbaf906e616",
+            "sourceColumn": "Measure",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Measure ID",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "9d72713e-f9aa-4579-9b80-098eed0b8ffa",
+            "sourceColumn": "Measure ID",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Type",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "78b9679b-478f-44ce-88af-bbd95735fd6c",
+            "sourceColumn": "Type",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "aac0589b-ba37-4b33-be14-cc92511ce695",
+        "partitions": [
+          {
+            "name": "mmeasures",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Excel.Workbook(File.Contents(\"C:\\Users\\adelekedare\\OneDrive\\Desktop\\maven_challenge_hcaps_survey.xlsx\"), null, true),",
+                "    Table1_Table = Source{[Item=\"Table1\",Kind=\"Table\"]}[Data],",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(Table1_Table,{{\"Measure ID\", type text}, {\"Measure\", type text}, {\"Type\", type text}})",
+                "in",
+                "    #\"Changed Type\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "national_results",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Bottom-box Percentage",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "3f4b7e52-884a-44c9-968a-4dc5bfa6b65e",
+            "sourceColumn": "Bottom-box Percentage",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "Measure ID",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "b5838224-7882-4bfa-a25a-7020395034f4",
+            "sourceColumn": "Measure ID",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Middle-box Percentage",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "3f409f3f-fb01-4b2d-8219-82baac438b15",
+            "sourceColumn": "Middle-box Percentage",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "Release Period",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "ebfb5c15-ed16-4af7-85b7-0e0cac32078a",
+            "sourceColumn": "Release Period",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Top-box Percentage",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "401cd72a-ee9c-4250-9996-4d7413430227",
+            "sourceColumn": "Top-box Percentage",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "release year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "changedProperties": [
+              {
+                "property": "DataType"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "e4b73bb7-763f-4956-b107-093966cc56b9",
+            "sourceColumn": "release year",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "101ecaf8-5d4e-42d3-8e84-c33e78bdb830",
+        "partitions": [
+          {
+            "name": "national_results",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Excel.Workbook(File.Contents(\"C:\\Users\\adelekedare\\OneDrive\\Desktop\\maven_challenge_hcaps_survey.xlsx\"), null, true),",
+                "    national_results_Table = Source{[Item=\"national_results\",Kind=\"Table\"]}[Data],",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(national_results_Table,{{\"Release Period\", type text}, {\"Measure ID\", type text}, {\"Bottom-box Percentage\", Int64.Type}, {\"Middle-box Percentage\", Int64.Type}, {\"Top-box Percentage\", Int64.Type}}),",
+                "    #\"Filtered Rows\" = Table.SelectRows(#\"Changed Type\", each true),",
+                "    #\"Inserted Text After Delimiter\" = Table.AddColumn(#\"Filtered Rows\", \"Text After Delimiter\", each Text.AfterDelimiter([Release Period], \"_\"), type text),",
+                "    #\"Renamed Columns\" = Table.RenameColumns(#\"Inserted Text After Delimiter\",{{\"Text After Delimiter\", \"release year\"}}),",
+                "    #\"Changed Type1\" = Table.TransformColumnTypes(#\"Renamed Columns\",{{\"release year\", type date}}),",
+                "    #\"Extracted Year\" = Table.TransformColumns(#\"Changed Type1\",{{\"release year\", Date.Year, Int64.Type}})",
+                "in",
+                "    #\"Extracted Year\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "questions",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Bottom-box Answer",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "2b6399e4-328b-4a96-afa7-d6d830a58e50",
+            "sourceColumn": "Bottom-box Answer",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Measure ID",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "5f0b67a7-1b8f-473c-9373-23d89b50aa6a",
+            "sourceColumn": "Measure ID",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Middle-box Answer",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "4d3e6127-a870-40d6-a0e1-de8d1bf9f7f4",
+            "sourceColumn": "Middle-box Answer",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Question Num",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "8f7ce39a-a56b-462d-8bf8-a0979e24acd2",
+            "sourceColumn": "Question Num",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "Top-box Answer",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "fee8b3f3-ea37-4c51-a91a-8fca5ba62581",
+            "sourceColumn": "Top-box Answer",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "c9f679a3-b5f5-4b99-88de-af37c294f0c7",
+        "partitions": [
+          {
+            "name": "questions",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Excel.Workbook(File.Contents(\"C:\\Users\\adelekedare\\OneDrive\\Desktop\\maven_challenge_hcaps_survey.xlsx\"), null, true),",
+                "    questions_Table = Source{[Item=\"questions\",Kind=\"Table\"]}[Data],",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(questions_Table,{{\"Question Num\", Int64.Type}, {\"Measure ID\", type text}, {\"Bottom-box Answer\", type text}, {\"Middle-box Answer\", type text}, {\"Top-box Answer\", type text}})",
+                "in",
+                "    #\"Changed Type\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "reports",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "End Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "UnderlyingDateTimeDataType",
+                "value": "Date"
+              }
+            ],
+            "dataType": "dateTime",
+            "formatString": "Long Date",
+            "lineageTag": "5b9e4466-7c59-4815-8858-2bca4b204f27",
+            "sourceColumn": "End Date",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Start Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "UnderlyingDateTimeDataType",
+                "value": "Date"
+              }
+            ],
+            "dataType": "dateTime",
+            "formatString": "Long Date",
+            "lineageTag": "64bfc65e-9ee0-49e6-ad6c-96d126a26e20",
+            "sourceColumn": "Start Date",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "release year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "changedProperties": [
+              {
+                "property": "DataType"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "3814486a-0d49-4298-a121-8248ea31da4d",
+            "sourceColumn": "release year",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "3e3b81da-ae4c-4469-a820-c8c0cc35cb20",
+        "partitions": [
+          {
+            "name": "reports",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Excel.Workbook(File.Contents(\"C:\\Users\\adelekedare\\OneDrive\\Desktop\\maven_challenge_hcaps_survey.xlsx\"), null, true),",
+                "    reports_Table = Source{[Item=\"reports\",Kind=\"Table\"]}[Data],",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(reports_Table,{{\"Release Period\", type text}, {\"Start Date\", type date}, {\"End Date\", type date}}),",
+                "    #\"Inserted Text After Delimiter\" = Table.AddColumn(#\"Changed Type\", \"Text After Delimiter\", each Text.AfterDelimiter([Release Period], \"_\"), type text),",
+                "    #\"Changed Type1\" = Table.TransformColumnTypes(#\"Inserted Text After Delimiter\",{{\"Text After Delimiter\", Int64.Type}}),",
+                "    #\"Renamed Columns\" = Table.RenameColumns(#\"Changed Type1\",{{\"Text After Delimiter\", \"release year\"}}),",
+                "    #\"Removed Columns\" = Table.RemoveColumns(#\"Renamed Columns\",{\"Release Period\"})",
+                "in",
+                "    #\"Removed Columns\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "responses",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Column",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "expression": "RELATED(States[State])",
+            "isDataTypeInferred": true,
+            "lineageTag": "db7a5ba3-804e-417b-8d96-a038cb3ebd08",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Completed surveys",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "17bc5568-d51e-4c8d-a738-a5171a08ef5e",
+            "sourceColumn": "Completed surveys",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Completion rate",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "cc92c4a4-d91d-41cb-9259-ee605b7c6dea",
+            "sourceColumn": "Completion rate",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Facility ID",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "8af0ad55-738b-4673-adc2-e0d5fbd063ff",
+            "sourceColumn": "Facility ID",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Response Rate (%)",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "changedProperties": [
+              {
+                "property": "DataType"
+              }
+            ],
+            "dataType": "int64",
+            "lineageTag": "df108b82-b46a-42f6-98b7-42e93819c733",
+            "sourceColumn": "Response Rate (%)",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "State",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "9f3f85ef-9983-44ae-baa6-0024bc24266e",
+            "sourceColumn": "State",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "region",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "expression": "RELATED(States[Region])",
+            "isDataTypeInferred": true,
+            "lineageTag": "37eb3eae-8954-461d-9217-9125e83d5442",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "release year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "e791c004-8d08-4774-afb9-876e09fe5d6b",
+            "sourceColumn": "release year",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "e4196060-a137-4b9c-8bea-d9b6aad59859",
+        "partitions": [
+          {
+            "name": "responses",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Excel.Workbook(File.Contents(\"C:\\Users\\adelekedare\\OneDrive\\Desktop\\maven_challenge_hcaps_survey.xlsx\"), null, true),",
+                "    responses_Table = Source{[Item=\"responses\",Kind=\"Table\"]}[Data],",
+                "    #\"Inserted Text After Delimiter\" = Table.AddColumn(responses_Table, \"Text After Delimiter\", each Text.AfterDelimiter([Release Period], \"_\"), type text),",
+                "    #\"Renamed Columns\" = Table.RenameColumns(#\"Inserted Text After Delimiter\",{{\"Text After Delimiter\", \"release year\"}}),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Renamed Columns\",{{\"release year\", Int64.Type}}),",
+                "    #\"Removed Columns\" = Table.RemoveColumns(#\"Changed Type\",{\"Release Period\"}),",
+                "    #\"Filtered Rows\" = Table.SelectRows(#\"Removed Columns\", each ([State] <> \"PR\" and [State] <> \"VI\"))",
+                "in",
+                "    #\"Filtered Rows\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "state_results",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Bottom-box Percentage",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "f3f26df8-34c3-448b-bdbb-9696814c2726",
+            "sourceColumn": "Bottom-box Percentage",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "Measure ID",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "af202619-4e9f-40ca-965a-c0d8f3eb1f2d",
+            "sourceColumn": "Measure ID",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Middle-box Percentage",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "3ba30a91-a9e2-4ff4-a2a7-f43f1b568c04",
+            "sourceColumn": "Middle-box Percentage",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "State",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "a5a10f30-7aef-4fbb-8664-de6d15df378d",
+            "sourceColumn": "State",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Top-box Percentage",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "cb107df3-410c-4996-946e-cea7d0df70d9",
+            "sourceColumn": "Top-box Percentage",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "release year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "changedProperties": [
+              {
+                "property": "DataType"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "55051574-c7b2-490e-adf5-abacc0875ed2",
+            "sourceColumn": "release year",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "ce342d13-33b0-4e97-9fcd-dcae24153634",
+        "partitions": [
+          {
+            "name": "state_results",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Excel.Workbook(File.Contents(\"C:\\Users\\adelekedare\\OneDrive\\Desktop\\maven_challenge_hcaps_survey.xlsx\"), null, true),",
+                "    state_results_Table = Source{[Item=\"state_results\",Kind=\"Table\"]}[Data],",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(state_results_Table,{{\"Release Period\", type text}, {\"State\", type text}, {\"Measure ID\", type text}, {\"Bottom-box Percentage\", Int64.Type}, {\"Middle-box Percentage\", Int64.Type}, {\"Top-box Percentage\", Int64.Type}}),",
+                "    #\"Inserted Text After Delimiter\" = Table.AddColumn(#\"Changed Type\", \"Text After Delimiter\", each Text.AfterDelimiter([Release Period], \"_\"), type text),",
+                "    #\"Renamed Columns\" = Table.RenameColumns(#\"Inserted Text After Delimiter\",{{\"Text After Delimiter\", \"release year\"}}),",
+                "    #\"Changed Type1\" = Table.TransformColumnTypes(#\"Renamed Columns\",{{\"release year\", Int64.Type}}),",
+                "    #\"Removed Columns\" = Table.RemoveColumns(#\"Changed Type1\",{\"Release Period\"})",
+                "in",
+                "    #\"Removed Columns\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
